@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -27,4 +29,20 @@ func queryMaxSalary(db *sqlx.DB) (*Employee, error) {
 		return nil, err
 	}
 	return e, nil
+}
+
+type Book struct {
+	ID     int     `db:"id"`
+	Title  string  `db:"title"`
+	Author string  `db:"author"`
+	Price  float64 `db:"price"` // 使用 float64 更适合货币类型
+}
+
+func queryExpensiveBooks(db *sqlx.DB, minPrice float64) ([]Book, error) {
+	var books []Book
+	err := db.Select(&books, "SELECT id, title, author, price FROM books WHERE price > ?", minPrice)
+	if err != nil {
+		return nil, fmt.Errorf("查询数据库失败: %w", err)
+	}
+	return books, nil
 }
