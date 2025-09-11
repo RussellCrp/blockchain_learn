@@ -1,4 +1,4 @@
-module blockchain_learn
+module blockchain_learn_gorm
 
 go 1.24.5
 
