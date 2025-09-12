@@ -10,27 +10,27 @@ import (
 )
 
 type postBody struct {
-	id      uint
-	title   string `binding:"required"`
-	content string `binding:"required"`
+	ID      uint   `json:"id"`
+	Title   string `binding:"required" json:"title"`
+	Content string `binding:"required" json:"content"`
 }
 
 func QueryPostList(c *gin.Context) {
 	var postList []models.Post
 	db := utils.GetDB(c)
-	db.Select("id, title, user_id, created_at, update_at").Find(&postList)
+	db.Select("id, title, user_id, created_at, updated_at").Find(&postList)
 	c.JSON(http.StatusOK, postList)
 }
 
 func QueryPostDetail(c *gin.Context) {
-	postID := c.Param("id")
+	postID := c.Query("id")
 	if postID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
 		return
 	}
 	post := &models.Post{}
 	db := utils.GetDB(c)
-	db.Select("id, title, content, user_id, created_at, update_at").First(post, postID)
+	db.Select("id, title, content, user_id, created_at, updated_at").First(post, postID)
 	c.JSON(http.StatusOK, post)
 }
 
@@ -41,7 +41,7 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 	userID := utils.GetLoginUserID(c)
-	post := &models.Post{Title: body.title, Content: body.content, UserID: userID}
+	post := &models.Post{Title: body.Title, Content: body.Content, UserID: userID}
 	db := utils.GetDB(c)
 	db.Create(post)
 	c.JSON(http.StatusOK, post)
@@ -54,18 +54,19 @@ func ModifyPost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
 		return
 	}
-	if postBody.id == 0 {
+	if postBody.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
 		return
 	}
 
 	db := utils.GetDB(c)
 	result := db.Model(&models.Post{}).
+		Where("id = ? and user_id = ?", postBody.ID, utils.GetLoginUserID(c)).
 		Updates(map[string]any{
-			"title":   postBody.title,
-			"content": postBody.content,
-		}).
-		Where("id = ? and user_id = ?", postBody.id, utils.GetLoginUserID(c))
+			"title":   postBody.Title,
+			"content": postBody.Content,
+		})
+
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
@@ -78,7 +79,7 @@ func ModifyPost(c *gin.Context) {
 }
 
 func DeletePost(c *gin.Context) {
-	postID := c.Param("id")
+	postID := c.Query("id")
 	if postID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
 		return

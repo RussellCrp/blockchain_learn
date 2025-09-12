@@ -17,5 +17,45 @@ Content-Type: application/json;
     console.log(authToken)
 %}
 
+### 新增博客
+POST http://localhost:8080/api/auth/post/create
+Content-Type: application/json;
+Authorization: {{auth_token}}
+
+{"title": "this is title", "content": "this is content"}
+
+### 修改博客
+PUT http://localhost:8080/api/auth/post/modify
+Content-Type: application/json;
+Authorization: {{auth_token}}
+
+{"id": 1,"title": "title modify", "content": "content modify"}
+
+
+### 获取博客列表
+GET http://localhost:8080/api/post/list
+Content-Type: application/json;
+
+### 获取博客详情
+GET http://localhost:8080/api/post/detail?id=5
+Content-Type: application/json;
+
+### 获取评论列表
+GET http://localhost:8080/api/comment/list?postID=1
+Content-Type: application/json;
+
+
+### 删除博客
+DELETE http://localhost:8080/api/auth/post/delete?id=5
+Content-Type: application/json;
+Authorization: {{auth_token}}
+
+
+### 新增评论
+POST http://localhost:8080/api/auth/comment/create
+Content-Type: application/json;
+Authorization: {{auth_token}}
+
+{"Content": "666666", "PostID": 1}
 
 

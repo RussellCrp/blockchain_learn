@@ -4,6 +4,7 @@ import (
 	"blogs_learn/models"
 	"blogs_learn/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,14 +28,17 @@ func CreateComment(c *gin.Context) {
 }
 
 func QueryCommentList(c *gin.Context) {
-	var postID uint
-	err := c.ShouldBindQuery(&postID)
-	if err != nil {
+	postID := c.Query("postID")
+	if postID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
 		return
 	}
+	atoi, err := strconv.Atoi(postID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is valid failed"})
+	}
 	commentList := []models.Comment{}
 	db := utils.GetDB(c)
-	db.Model(&models.Comment{}).Where("post_id = ? ", postID).Find(&commentList)
+	db.Model(&models.Comment{}).Where("post_id = ? ", atoi).Find(&commentList)
 	c.JSON(http.StatusOK, commentList)
 }

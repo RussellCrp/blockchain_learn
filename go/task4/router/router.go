@@ -13,12 +13,12 @@ func InitRouter(r *gin.Engine) {
 	r.POST("/api/register", server.Register)
 	r.GET("/api/post/list", server.QueryPostList)
 	r.GET("/api/post/detail", server.QueryPostDetail)
-	r.POST("/api/comment/list", server.CreateComment)
+	r.GET("/api/comment/list", server.QueryCommentList)
 
 	authGroup := r.Group("/api/auth")
 	authGroup.Use(middleware.AuthMiddleware)
 	authGroup.POST("/post/create", server.CreatePost)
-	authGroup.POST("/post/modify", server.ModifyPost)
-	authGroup.POST("/post/delete", server.DeletePost)
+	authGroup.PUT("/post/modify", server.ModifyPost)
+	authGroup.DELETE("/post/delete", server.DeletePost)
 	authGroup.POST("/comment/create", server.CreateComment)
 }
