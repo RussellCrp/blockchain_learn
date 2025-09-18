@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.13;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
     合约包含以下标准 ERC20 功能：
@@ -13,18 +15,19 @@ pragma solidity ^0.8.0;
     使用 event 定义 Transfer 和 Approval 事件。
     部署到sepolia 测试网，导入到自己的钱包
 */
-contract myERC20 {
+contract MyToken is IERC20{
 
     uint256 public totalSupply;
     address private owner;
     mapping(address => uint256) private balance;
+    string public name;
+    string public symbol;
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
 
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    constructor(){
+    constructor(string memory  _name, string memory  _symbol){
+        name = _name;
+        symbol = _symbol;
         owner = msg.sender;
     }
 
@@ -65,6 +68,10 @@ contract myERC20 {
         require(msg.sender == owner, "not allowed");
         balance[account] += value;
         totalSupply += value;
+    }
+
+    function allowance(address _owner, address spender) external view returns (uint256) {
+        return _allowances[_owner][spender];
     }
 
 }
